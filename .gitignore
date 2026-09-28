@@ -1,0 +1,11 @@
+# Foundry
+out/
+cache/
+broadcast/
+lib/
+dependencies/
+.gas-snapshot
+
+# Local configuration
+.env
+.env.*

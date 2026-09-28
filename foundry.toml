@@ -1,0 +1,66 @@
+# Foundry configuration for the Tuo Protocol contracts.
+# Solidity 0.8.26 / cancun: Arbitrum One supports Cancun opcodes since ArbOS 20 (2024).
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["dependencies"]
+solc_version = "0.8.26"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+# TuoVault is against the EIP-170 runtime ceiling, so the ~53-byte CBOR/IPFS metadata
+# trailer is not free space we can spend. Etherscan verification degrades from an exact
+# match to a partial match; the source still verifies.
+bytecode_hash = "none"
+cbor_metadata = false
+
+# Vendored Uniswap code keeps upstream style; format and lint our sources only.
+# Both `ignore` globs must match files, not directories: `src/vendor/**` alone
+# matches nothing here, so the vendored sources have to be spelled out to the
+# `.sol`. Verify with `forge lint 2>&1 | grep -c src/vendor` -> 0.
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = false
+ignore = ["src/vendor/**/*.sol"]
+
+[lint]
+ignore = ["src/vendor/**/*.sol"]
+
+[fuzz]
+runs = 256
+
+[invariant]
+runs = 128
+depth = 64
+fail_on_revert = false
+
+# CI profile: heavier fuzz/invariant runs for the merge gate.
+[profile.ci]
+fuzz = { runs = 5000 }
+invariant = { runs = 1000, depth = 128 }
+
+[soldeer]
+remappings_generate = false
+remappings_version = false
+remappings_location = "txt"
+
+# Pinned exact versions from the soldeer registry. `forge soldeer install` restores
+# them into dependencies/ (gitignored). remappings.txt is maintained by hand.
+[dependencies]
+forge-std = "1.16.2"
+"@openzeppelin-contracts" = "5.6.1"
+"@uniswap-v3-core" = "1.0.2-solc-0.8-simulate"
+
+[rpc_endpoints]
+arbitrum = "${ARBITRUM_RPC_URL}"
+arbitrum_sepolia = "${ARBITRUM_SEPOLIA_RPC_URL}"
+
+# One Etherscan v2 key covers both chains; `forge script --verify` and
+# `forge verify-contract --chain <name>` resolve the endpoint from here.
+[etherscan]
+arbitrum = { key = "${ARBISCAN_API_KEY}", chain = 42161 }
+arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}", chain = 421614 }

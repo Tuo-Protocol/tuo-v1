@@ -1,0 +1,9 @@
+node_modules/
+dependencies/
+out/
+cache/
+broadcast/
+
+# Vendored Uniswap code keeps upstream style so it stays diffable against the
+# source repo. Mirrors the `ignore` globs in foundry.toml's [fmt] / [lint].
+src/vendor/
